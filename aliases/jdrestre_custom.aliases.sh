@@ -440,11 +440,11 @@ alias py='python3'            # Python 3 execute alias
 alias nl="nl -ba -d':' -fn -hn -i1 -l1 -n'ln' -s'  ' -v1 -w3" # Number lines
 alias edge="/mnt/c/'Program Files (x86)'/Microsoft/Edge/Application/msedge.exe"   # Open Microsoft Edge
 alias chrome="/mnt/c/'Program Files'/Google/Chrome/Application/chrome.exe" # Open Google Chrome
-alias gcheck='~/.oh-my-bash/plugins/git/check_git_status.sh' # Git Repository Status Checker
+alias gcheck='~/.oh-my-bash/custom/plugins/jdrestre_git/check_git_status.sh' # Git Repository Status Checker
 # This script checks the status of each Git repository within the
 # current directory and shows a summary of repositories with
 # pending changes, no changes, or that are not Git repositories.
-alias gsl='~/.oh-my-bash/plugins/git/superlog.sh' # Git Superlog + Files Changed
+alias gsl='~/.oh-my-bash/custom/plugins/jdrestre_git/superlog.sh' # Git Superlog + Files Changed
 # Shows detailed log and counts modifications per file, sorting and listing up to the first file with a single modification
 
 # Overrides extraídos de ls.aliases.sh
