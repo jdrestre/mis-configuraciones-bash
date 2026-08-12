@@ -9,6 +9,8 @@ Este repositorio contiene mis *dotfiles* y configuraciones extendidas para [Oh M
 - **🎨 Tema Personalizado (`jdrestre-powerline`)**: Una versión mejorada y adaptada del tema `powerline-multiline`, con información detallada de Git, entornos virtuales, tiempo de ejecución y mejoras visuales.
 - **🛠️ Alias Propios (`jdrestre_custom.aliases.sh`)**: Colección de alias para optimizar el flujo de trabajo diario (incluye parches para los comandos de copiado, listado con inodos, atajos de Git, etc).
 - **👋 Plugin de Bienvenida (`bash-startup`)**: Un plugin interactivo que se ejecuta cada vez que abro una nueva terminal. Muestra arte ASCII dinámico, fechas con semana ajustada y efemérides geeks aleatorias (`.geek_ephemeris`).
+- **🔌 Plugins Auxiliares (`emacs`, `upgrade_packages`)**: Módulos personalizados para integrar comandos de edición y optimizar la actualización de paquetes del sistema.
+- **📊 Herramientas Git (`jdrestre_git`)**: Scripts avanzados para analizar el estado de múltiples repositorios (`gcheck` / `check_git_status.sh`) y generar estadísticas de cambios por archivo (`gsl` / `superlog.sh`).
 
 ## ⚙️ Instalación Rápida (Portable)
 
@@ -45,9 +47,11 @@ aliases=(
   jdrestre_custom
 )
 
-# 3. Cargar el plugin de bienvenida
+# 3. Cargar los plugins
 plugins=(
   bash-startup
+  emacs
+  upgrade_packages
   # ... otros plugins como git, battery, etc.
 )
 ```
