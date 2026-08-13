@@ -1,0 +1,14 @@
+[init]
+    defaultBranch = main
+[color]
+    ui = true
+[alias]
+    superlog = log --graph --decorate --pretty=format:'%Cred%h%Creset -%C(auto)%d%Creset%n%B%Cgreen(%ar) %C(bold blue)<%an>%Creset --> %C(bold yellow)%ad%Creset' --abbrev-commit --date=format:'%A, %d %b %Y %H:%M' --stat
+[core]
+    editor = code --wait
+[diff]
+    tool = vscode
+[difftool]
+    prompt = false
+[difftool "vscode"]
+    cmd = code --wait --diff $LOCAL $REMOTE

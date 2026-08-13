@@ -466,3 +466,17 @@ function _omb_util_alias_select_mv {
     _omb_command='mv -i'
   fi
 }
+
+# -------------------------------------------------------------
+# ⚙️ Auto-vinculación de la Configuración Compartida de Git (.gitconfig_shared)
+# -------------------------------------------------------------
+if [ -n "$OSH_CUSTOM" ] && [ -d "$OSH_CUSTOM" ]; then
+  SHARED_GIT_CONFIG="$OSH_CUSTOM/.gitconfig_shared"
+  # Validar que exista el archivo y que el binario de 'git' esté disponible
+  if [ -f "$SHARED_GIT_CONFIG" ] && command -v git >/dev/null 2>&1; then
+    # Verificar de forma segura si la ruta ya está enlazada
+    if ! git config --global --get-all include.path 2>/dev/null | grep -F -q "$SHARED_GIT_CONFIG" 2>/dev/null; then
+      git config --global --add include.path "$SHARED_GIT_CONFIG" 2>/dev/null
+    fi
+  fi
+fi
