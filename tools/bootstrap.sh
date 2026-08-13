@@ -1,21 +1,45 @@
 #!/usr/bin/env bash
 
-# bootstrap.sh — Script de instalación rápida del entorno portable jdrestre (Dotfiles)
+# tools/bootstrap.sh — Script de instalación rápida del entorno portable jdrestre (Dotfiles)
+# NOTA: Este script reside en tools/ para evitar que Oh My Bash lo ejecute automáticamente en cada terminal.
 # Detener ejecución ante cualquier error
 set -e
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+YELLOW='\033[0;33m'
 NC='\033[0;m' # No Color
 
 echo -e "${BLUE}🚀 Iniciando aprovisionamiento del entorno portable (jdrestre)...${NC}"
 
+# 0. Verificar paquetes recomendados del sistema
+echo -e "${BLUE}🔍 Verificando herramientas del sistema recomendadas...${NC}"
+missing_pkgs=()
+for cmd in fortune figlet lolcat; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        case "$cmd" in
+            fortune) missing_pkgs+=("fortune-mod" "fortunes-es") ;;
+            *) missing_pkgs+=("$cmd") ;;
+        esac
+    fi
+done
+
+if [ ${#missing_pkgs[@]} -gt 0 ]; then
+    echo -e "${YELLOW}⚠️  Faltan las siguientes herramientas visuales recomendadas: ${missing_pkgs[*]}${NC}"
+    echo -e "${YELLOW}   Puedes instalarlas con: sudo apt update && sudo apt install -y ${missing_pkgs[*]}${NC}"
+else
+    echo -e "${GREEN}✓ Todas las herramientas recomendadas (fortune, figlet, lolcat) están instaladas.${NC}"
+fi
+
 # 1. Verificar si Oh-My-Bash está instalado
 if [ ! -d "$HOME/.oh-my-bash" ]; then
     echo -e "${BLUE}📦 Instalando Oh-My-Bash (Core oficial)...${NC}"
-    # Ejecutar la instalación oficial de oh-my-bash de forma silenciosa
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)" -- --unattended
+    # Descargar y ejecutar el script instalador oficial de oh-my-bash pasando la bandera --unattended
+    tmp_installer=$(mktemp)
+    curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh > "$tmp_installer"
+    bash "$tmp_installer" --unattended
+    rm -f "$tmp_installer"
 else
     echo -e "${GREEN}✓ Oh-My-Bash ya está instalado.${NC}"
 fi

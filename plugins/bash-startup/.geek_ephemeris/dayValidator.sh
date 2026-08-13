@@ -5,6 +5,11 @@
 # https://manytools.org/hacker-tools/convert-images-to-ascii-art/
 # https://image-to-ascii.xmlformatter.io/
 
+# Fallback function if lolcat is not installed
+if ! command -v lolcat >/dev/null 2>&1; then
+  lolcat() { cat; }
+fi
+
 DATE=`date +"%d-%m"`
 DAYOFYEAR=`date +%j`
 DAYOFWEEK=`date +%u`
