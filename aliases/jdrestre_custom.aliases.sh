@@ -446,6 +446,8 @@ alias gcheck='~/.oh-my-bash/custom/plugins/jdrestre_git/check_git_status.sh' # G
 # pending changes, no changes, or that are not Git repositories.
 alias gsl='~/.oh-my-bash/custom/plugins/jdrestre_git/superlog.sh' # Git Superlog + Files Changed
 # Shows detailed log and counts modifications per file, sorting and listing up to the first file with a single modification
+alias bash-health='~/.oh-my-bash/custom/tools/healthcheck.sh' # Diagnóstico de Salud del Entorno Bash (jdrestre)
+
 
 # Overrides extraídos de ls.aliases.sh
 alias l='ls -lathFi'
