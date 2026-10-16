@@ -13,9 +13,10 @@ El repositorio reside localmente en `~/.oh-my-bash/custom/` (remoto `git@github.
 
 - **`themes/`**: `jdrestre-powerline` (tema multilínea con truncamiento inteligente `__powerline_truncate_path`).
 - **`aliases/`**: `jdrestre_custom.aliases.sh` (wrappers seguros `rm_custom`/`cat_custom`, alias de paquetes, git y alias `bash-health`).
-- **`plugins/`**: `bash-startup` (bienvenida y efemérides), `emacs` (`cemacs`), `upgrade_packages` (`upgrade_pkg`), `jdrestre_git` (`gcheck`, `gsl`).
-- **`tools/`**: Scripts de ejecución manual (`bootstrap.sh`, `healthcheck.sh`).
+- **`plugins/`**: `bash-startup` (bienvenida y efemérides), `emacs` (`cemacs`), `upgrade_packages` (`upgrade_pkg`), `jdrestre_git` (`gcheck`, `gsl`), `apt_mentor` (`supd` inteligente con microaprendizaje).
+- **`tools/`**: Scripts de ejecución manual (`bootstrap.sh`, `uninstall.sh`, `healthcheck.sh`).
 - **`docs/adr/`**: Log histórico de Decisiones de Arquitectura (ADR).
+- **`docs/learning/`**: Base de conocimiento duradera de microaprendizaje (`til.md`, `.stats.tsv`).
 - **`.gitconfig_shared`**: Configuración global compartida de Git (alias, colores, VS Code diff).
 
 ---
@@ -40,6 +41,10 @@ Cualquier agente de IA o desarrollador que modifique este repositorio **DEBE** r
 4. **Guardarraíl 4 (Cero Cierres/Bloqueos)**:
    - Prohibido el uso de `set -e` o llamados destructivos en scripts que se carguen mediante `source` en la sesión interactiva.
 
+5. **Guardarraíl 5 (Inviolabilidad del Sistema Operativo & Cero Commits Automáticos)**:
+   - Toda interacción con paquetes se limita a comandos de inspección no destructivos (`apt-cache`, `dpkg -L`).
+   - Prohibido realizar commits automáticos o silenciosos a Git; toda sincronización remota debe ser explícita y manual mediante `supd sync`.
+
 ---
 
 ## 📚 4. Historial de Decisiones de Arquitectura (ADR)
@@ -49,3 +54,5 @@ Para profundizar en el contexto histórico y la memoria de mejora continua, cons
 - [ADR 0001: Reubicación de bootstrap.sh a tools/](file:///wsl.localhost/Ubuntu-24.04/home/jdrestre/.oh-my-bash/custom/docs/adr/0001-bootstrap-relocation.md)
 - [ADR 0002: Programación Defensiva en Plugins (command -v & Fallbacks)](file:///wsl.localhost/Ubuntu-24.04/home/jdrestre/.oh-my-bash/custom/docs/adr/0002-defensive-plugin-loading.md)
 - [ADR 0003: Script de Salud Desacoplado (tools/healthcheck.sh & bash-health)](file:///wsl.localhost/Ubuntu-24.04/home/jdrestre/.oh-my-bash/custom/docs/adr/0003-decoupled-healthcheck.md)
+- [ADR 0004: Plugin Apt-Mentor para Microaprendizaje, Telemetría y Portabilidad en supd](file:///wsl.localhost/Ubuntu-24.04/home/jdrestre/.oh-my-bash/custom/docs/adr/0004-apt-mentor-plugin.md)
+
