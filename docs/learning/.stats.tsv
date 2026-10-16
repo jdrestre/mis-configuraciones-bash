@@ -1,0 +1,11 @@
+concepto_o_paquete	veces_detectado	veces_estudiado	nivel_actual	ultimo_repaso
+sudo_suid	1	1	basico	2026-10-15
+fhs_structure	1	0	no_iniciado	-
+apt_lists_gpg	1	0	no_iniciado	-
+syscalls_libc	1	0	no_iniciado	-
+wsl2_architecture	1	0	no_iniciado	-
+posix_permissions	1	0	no_iniciado	-
+file_descriptors	1	0	no_iniciado	-
+signals_processes	1	0	no_iniciado	-
+systemd_init	1	0	no_iniciado	-
+env_variables	1	0	no_iniciado	-

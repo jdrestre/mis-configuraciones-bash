@@ -1,0 +1,235 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# bin/apt-mentor — Dispatcher CLI principal para Apt-Mentor y supd
+# ==============================================================================
+
+# Resolver rutas absolutas
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+    DIR="$(cd -P "$(dirname "$SOURCE")" >/dev/null 2>&1 && pwd)"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+PLUGIN_DIR="$(cd -P "$(dirname "$SOURCE")/.." >/dev/null 2>&1 && pwd)"
+CUSTOM_DIR="$(cd -P "$PLUGIN_DIR/../.." >/dev/null 2>&1 && pwd)"
+
+# Cargar librerías modulares
+# shellcheck source=lib/metrics.sh
+source "$PLUGIN_DIR/lib/metrics.sh"
+# shellcheck source=lib/curriculum.sh
+source "$PLUGIN_DIR/lib/curriculum.sh"
+# shellcheck source=lib/evaluator.sh
+source "$PLUGIN_DIR/lib/evaluator.sh"
+# shellcheck source=lib/ai_adapter.sh
+source "$PLUGIN_DIR/lib/ai_adapter.sh"
+# shellcheck source=lib/renderer.sh
+source "$PLUGIN_DIR/lib/renderer.sh"
+# shellcheck source=lib/sync.sh
+source "$PLUGIN_DIR/lib/sync.sh"
+
+# Rutas de datos
+CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/apt-mentor/config.env"
+STATS_FILE="$CUSTOM_DIR/docs/learning/.stats.tsv"
+TIL_FILE="$CUSTOM_DIR/docs/learning/til.md"
+
+# Cargar configuración personalizada si existe
+if [[ -f "$CONFIG_FILE" ]]; then
+    # shellcheck disable=SC1090
+    source "$CONFIG_FILE"
+fi
+
+# Valores por defecto defensivos
+APT_MENTOR_TIMEOUT="${APT_MENTOR_TIMEOUT:-10}"
+APT_MENTOR_AI_PROVIDER="${APT_MENTOR_AI_PROVIDER:-agy}"
+APT_MENTOR_STRATEGY="${APT_MENTOR_STRATEGY:-foundations_first}"
+APT_MENTOR_LEVEL="${APT_MENTOR_LEVEL:-basico}"
+APT_MENTOR_EVAL_CADENCE="${APT_MENTOR_EVAL_CADENCE:-5}"
+APT_MENTOR_TELEMETRY="${APT_MENTOR_TELEMETRY:-true}"
+APT_MENTOR_GIT_REMOTE="${APT_MENTOR_GIT_REMOTE:-origin}"
+APT_MENTOR_GIT_BRANCH="${APT_MENTOR_GIT_BRANCH:-main}"
+
+# Asegurar archivos de datos
+curriculum_init_stats "$STATS_FILE"
+metrics_init
+
+# Mostrar pantalla de ayuda
+show_help() {
+    cat << EOF
+================================================================================
+🧭 SUPD (Smart Update & DevOps Mentor) — v1.0.0
+================================================================================
+Uso:
+  supd [OPCIONES] [SUBCOMANDO]
+
+Descripción:
+  Wrapper interactivo para 'sudo apt update' que integra microaprendizaje
+  de 5 minutos (fundamentos de Linux/WSL2/DevOps), telemetría de hábitos
+  y sincronización de conocimiento portátil entre equipos.
+
+OPCIONES:
+  -h, --help        Muestra esta pantalla de ayuda y finaliza.
+  -y, --quick       Modo rápido: Ejecuta 'sudo apt update' sin abrir el menú
+                    interactivo ni pausar para aprendizaje (igual al apt clásico).
+  -l, --learn       Salta directamente a la lección de 5 minutos del día
+                    sin ejecutar la actualización de paquetes.
+  -q, --quiet       Ejecuta en modo silencioso (solo muestra errores).
+
+SUBCOMANDOS:
+  sync              Sincroniza manualmente la bitácora de aprendizaje (til.md
+                    y .stats.tsv) con el repositorio remoto de GitHub.
+                    [Automatización: Se sugiere al superar un Checkpoint de 5 conceptos].
+  stats [--week]    Muestra las métricas de uso, consistencia y racha semanal.
+  config            Muestra la ruta y los valores actuales de 'config.env'.
+  offline           Fuerza la ejecución en modo 100% nativo sin IA.
+
+AUTOMATIZACIONES ASOCIADAS:
+  • Sudo session: Reutiliza el timestamp de sudo para no pedir clave dos veces.
+  • Auto-evaluación: Sugiere un Checkpoint Práctico cada 5 conceptos acumulados.
+  • Sugerencia sync: Sugiere respaldar en GitHub tras superar hitos formativos.
+  • Fallback: Si no hay conexión o no existe 'agy', conmuta a manuales nativos.
+================================================================================
+EOF
+}
+
+# Flujo de ejecución principal de aprendizaje
+run_learning_flow() {
+    local target_info="$1"
+    local start_time
+    start_time=$(date +%s 2>/dev/null || date +"%s")
+
+    IFS='|' read -r t_type t_id t_title <<< "$target_info"
+
+    echo ""
+    echo -e "\033[1;36m[+] Generando ficha de microaprendizaje (Proveedor: $APT_MENTOR_AI_PROVIDER)...\033[0m"
+    ai_generate_flashcard "$APT_MENTOR_AI_PROVIDER" "$t_type" "$t_id" "$APT_MENTOR_LEVEL"
+
+    # Marcar como aprendido
+    curriculum_mark_as_learned "$STATS_FILE" "$t_id" "$APT_MENTOR_LEVEL"
+    
+    # Submenú posterior a la lección
+    local post_choice
+    post_choice=$(renderer_show_post_lesson_menu)
+    local end_time duration
+    end_time=$(date +%s 2>/dev/null || date +"%s")
+    duration=$(( end_time - start_time ))
+
+    case "$post_choice" in
+        a)
+            metrics_log_event "LEARN_DEEP_AGY" "$t_id" "$duration"
+            ai_start_interactive_session "$APT_MENTOR_AI_PROVIDER" "$t_id" "$APT_MENTOR_LEVEL"
+            ;;
+        b)
+            metrics_log_event "LEARN_THEN_UPGRADE" "$t_id" "$duration"
+            echo -e "\033[1;32m🚀 Procediendo con la actualización de paquetes...\033[0m"
+            sudo apt upgrade
+            ;;
+        c|*)
+            metrics_log_event "LEARN_ONLY" "$t_id" "$duration"
+            echo -e "\033[1;32m✓ Micro-sesión completada con éxito. ¡Buen trabajo hoy!\033[0m"
+            ;;
+    esac
+}
+
+# --- PROCESAMIENTO DE ARGUMENTOS ---
+case "${1:-}" in
+    -h|--help)
+        show_help
+        exit 0
+        ;;
+    -y|--quick)
+        sudo apt update
+        metrics_log_event "UPDATE_QUICK" "none" 0
+        exit 0
+        ;;
+    -l|--learn)
+        renderer_banner
+        target_topic=$(curriculum_pick_next_topic "$STATS_FILE" "$APT_MENTOR_STRATEGY" "")
+        run_learning_flow "$target_topic"
+        exit 0
+        ;;
+    stats)
+        metrics_weekly_report
+        exit 0
+        ;;
+    sync)
+        sync_run_manual "$CUSTOM_DIR" "$APT_MENTOR_GIT_REMOTE" "$APT_MENTOR_GIT_BRANCH"
+        exit 0
+        ;;
+    config)
+        echo "Ruta de configuración: $CONFIG_FILE"
+        echo "Proveedor IA         : $APT_MENTOR_AI_PROVIDER"
+        echo "Estrategia           : $APT_MENTOR_STRATEGY"
+        echo "Nivel inicial        : $APT_MENTOR_LEVEL"
+        echo "Timeout de menú      : ${APT_MENTOR_TIMEOUT}s"
+        echo "Cadencia evaluación  : cada $APT_MENTOR_EVAL_CADENCE conceptos"
+        exit 0
+        ;;
+    offline)
+        APT_MENTOR_AI_PROVIDER="offline"
+        shift
+        ;;
+esac
+
+# --- FLUJO NORMAL DE SUPD ---
+# 1. Ejecutar la actualización de repositorios nativa
+sudo apt update || {
+    echo -e "\033[0;31m❌ Error al actualizar los repositorios con 'sudo apt update'.\033[0m"
+    exit 1
+}
+
+# 2. Obtener lista de paquetes actualizables
+upgradable_raw=$(apt list --upgradable 2>/dev/null | grep -v -E "^Listing\.\.\." || true)
+if [[ -n "$upgradable_raw" ]]; then
+    upgradable_count=$(echo "$upgradable_raw" | wc -l)
+    upgradable_pkgs=$(echo "$upgradable_raw" | awk -F'/' '{print $1}' | tr '\n' ' ')
+else
+    upgradable_count=0
+    upgradable_pkgs=""
+fi
+
+# 3. Registrar paquetes detectados en el archivo de estadísticas
+if (( upgradable_count > 0 )); then
+    curriculum_record_upgradables "$STATS_FILE" "$upgradable_pkgs"
+fi
+
+# 4. Seleccionar el siguiente objetivo de aprendizaje
+next_topic=$(curriculum_pick_next_topic "$STATS_FILE" "$APT_MENTOR_STRATEGY" "$upgradable_pkgs")
+IFS='|' read -r t_type t_id t_title <<< "$next_topic"
+
+# 5. Comprobar si corresponde sugerir Checkpoint Evaluativo (cada N conceptos)
+should_checkpoint=$(metrics_should_trigger_checkpoint "$STATS_FILE" "$APT_MENTOR_EVAL_CADENCE")
+
+if [[ "$should_checkpoint" == "true" ]]; then
+    echo ""
+    echo -e "\033[1;35m🎉 ¡Has alcanzado un hito! Tienes 5 conceptos afianzados listos para validar.\033[0m"
+    echo -e "\033[1;33m🎯 ¿Deseas resolver el Checkpoint Práctico en Terminal (3 min)?\033[0m"
+    echo -e "   [1] 🧪 Sí, realizar reto práctico ahora"
+    echo -e "   [2] ⏩ Postergar para mañana (Continuar)"
+    read -r -t "${APT_MENTOR_TIMEOUT:-10}" -n 1 -p "Elige [1/2] (Enter = Postergar): " chk_choice || true
+    echo ""
+
+    if [[ "$chk_choice" == "1" ]]; then
+        evaluator_run_checkpoint "$t_id" "$STATS_FILE" "$TIL_FILE"
+        exit 0
+    fi
+fi
+
+# 6. Mostrar el menú principal interactivo
+choice=$(renderer_show_main_menu "$APT_MENTOR_TIMEOUT" "$upgradable_count" "$t_title")
+
+case "$choice" in
+    1)
+        run_learning_flow "$next_topic"
+        ;;
+    2)
+        metrics_log_event "UPGRADE_DIRECT" "none" 0
+        echo -e "\033[1;32m🚀 Ejecutando actualización con 'sudo apt upgrade'...\033[0m"
+        sudo apt upgrade
+        ;;
+    3|*)
+        metrics_log_event "EXIT_QUICK" "none" 0
+        # Salida limpia y silenciosa hacia la terminal
+        ;;
+esac
+
+exit 0
