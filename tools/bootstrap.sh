@@ -88,7 +88,7 @@ if ! grep -q "jdrestre_custom" "$BASHRC"; then
 fi
 
 # Asegurar la carga de plugins personalizados
-for plugin in "bash-startup" "emacs" "upgrade_packages"; do
+for plugin in "bash-startup" "emacs" "upgrade_packages" "apt_mentor"; do
     if ! grep -q "$plugin" "$BASHRC"; then
         echo -e "${BLUE}➕ Agregando plugin $plugin a ~/.bashrc...${NC}"
         if grep -q "plugins=(" "$BASHRC"; then
@@ -98,6 +98,14 @@ for plugin in "bash-startup" "emacs" "upgrade_packages"; do
         fi
     fi
 done
+
+# Asegurar configuración inicial de apt-mentor si no existe
+mkdir -p "$HOME/.config/apt-mentor" 2>/dev/null || true
+if [ ! -f "$HOME/.config/apt-mentor/config.env" ] && [ -f "$OSH_CUSTOM/plugins/apt_mentor/config.env.example" ]; then
+    cp "$OSH_CUSTOM/plugins/apt_mentor/config.env.example" "$HOME/.config/apt-mentor/config.env"
+    echo -e "${GREEN}✓ Plantilla inicial de configuración copiada a ~/.config/apt-mentor/config.env${NC}"
+fi
+
 
 # 4. Forzar vinculación de la configuración de Git local (.gitconfig_shared)
 echo -e "\n${BLUE}⚙️ Verificando vinculación de Git Config Shared...${NC}"

@@ -58,11 +58,11 @@ source ~/.bashrc
 - **🎨 Tema Personalizado (`jdrestre-powerline`)**: Una versión mejorada de `powerline-multiline`, con información de Git, entornos virtuales, tiempo de ejecución y truncamiento inteligente de rutas (`__powerline_truncate_path`).
 - **🛠️ Alias Propios (`jdrestre_custom.aliases.sh`)**: Colección de alias para optimizar el flujo diario (incluye wrappers interactivos para `rm` y `cat`, atajos de paquetes `supd`/`supg`, Python `py`, utilidades de Git y el comando `bash-health`).
 - **👋 Plugin de Bienvenida (`bash-startup`)**: Muestra arte ASCII dinámico, fechas con semana ajustada y efemérides geeks aleatorias (`.geek_ephemeris`).
-- **🔌 Plugins Auxiliares (`emacs`, `upgrade_packages`)**: Módulos personalizados para limpieza de backups de Emacs (`cemacs`) y actualización profunda de paquetes (`upgrade_pkg`).
+- **🔌 Plugins Auxiliares (`emacs`, `upgrade_packages`, `apt_mentor`)**: Módulos personalizados para limpieza de backups de Emacs (`cemacs`), actualización profunda de paquetes (`upgrade_pkg`) y `apt_mentor` (el nuevo comando `supd` inteligente con microaprendizaje diario de 5 minutos, telemetría y portabilidad).
 - **📊 Herramientas Git (`jdrestre_git`)**: Scripts avanzados para analizar repositorios (`gcheck` / `check_git_status.sh`) y estadísticas de cambios por archivo (`gsl` / `superlog.sh`).
-- **🏥 Diagnóstico de Salud (`tools/healthcheck.sh`)**: Auditoría ejecutable a demanda (`bash-health`).
+- **🏥 Aprovisionamiento y Salud (`tools/`)**: Scripts de instalación (`bootstrap.sh`), desinstalación limpia (`uninstall.sh`) y diagnóstico ejecutable a demanda (`healthcheck.sh` / `bash-health`).
 - **⚙️ Configuración Compartida de Git (`.gitconfig_shared`)**: Definición global versionada de alias de Git (`superlog`), colores e integración con VS Code.
-- **🤖 Memoria para IA y Reglas (`AGENTS.md` + `docs/adr/`)**: Documentación modular con guardarraíles para asistentes de IA y Registro de Decisiones de Arquitectura (ADR).
+- **📚 Memoria de Aprendizaje y Reglas (`AGENTS.md`, `docs/adr/`, `docs/learning/`)**: Documentación modular con guardarraíles para asistentes de IA, Registro de Decisiones de Arquitectura (ADR) y bitácora persistente de conocimientos.
 
 ---
 

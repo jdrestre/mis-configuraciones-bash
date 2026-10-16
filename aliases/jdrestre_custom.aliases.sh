@@ -434,7 +434,12 @@ cat_custom() {
 alias rm='rm_custom'          # Create alias to use the custom rm function
 alias cat='cat_custom'        # Create alias to use the custom cat function
 alias emacs='emacs -nw'       # Run Emacs in terminal mode
-alias supd='sudo apt update'  # Update APT package lists
+# supd: Actualización inteligente y microaprendizaje (plugin apt_mentor con fallback defensivo)
+if [ -x "$HOME/.oh-my-bash/custom/plugins/apt_mentor/bin/apt-mentor" ]; then
+  alias supd="$HOME/.oh-my-bash/custom/plugins/apt_mentor/bin/apt-mentor"
+else
+  alias supd='sudo apt update'  # Fallback si apt_mentor no está instalado
+fi
 alias supg='sudo apt upgrade' # Upgrade APT packages
 alias py='python3'            # Python 3 execute alias
 alias nl="nl -ba -d':' -fn -hn -i1 -l1 -n'ln' -s'  ' -v1 -w3" # Number lines
